@@ -1,11 +1,25 @@
 # Repository Guide
 
+## Agent workflow
+
+- If the Ponytail plugin is installed in your agent configuration, always
+  activate and follow it at the start of every task in this repository. Use
+  `ponytail:ponytail` when the host exposes the skill under that name.
+- Read [MEMORY.md](MEMORY.md) for the project history, release verification,
+  and decisions that shape the current roadmap.
+- After each tool call or edit that changes the project, append one dated,
+  high-level bullet to the `Change log` in root `MEMORY.md` before continuing.
+  Summarize what changed in one sentence. An editing tool call and its log
+  entry count as one operation.
+
 ## Project status
 
 Lazel is a Rust CLI for a language-agnostic monorepo task orchestrator.
 `lazel run <project>:<task>` finds a `lazel.toml`, validates its configuration
 and task graph, and runs the requested task and its prerequisites sequentially.
-Local caching and parallel execution are future milestones.
+The shell installer distributes prebuilt binaries for macOS and Linux on x86-64
+and ARM64. Opt-in local caching is the next milestone, followed by bounded
+parallel execution.
 
 ## Layout
 
@@ -17,7 +31,11 @@ Local caching and parallel execution are future milestones.
 - `src/workspace.rs`: workspace discovery, config validation, and execution order.
 - `tests/`: CLI integration tests.
 - `examples/mixed-language/`: Rust and Python build example and verification.
-- `README.md`: workspace configuration and example usage.
+- `install.sh` downloads the latest release, checks its SHA-256 digest, and
+  installs `lazel` in `$HOME/.local/bin`.
+- `.github/workflows/rust-ci.yml` checks builds, tests, and the example.
+- `.github/workflows/release.yml` builds and publishes binaries on version tags.
+- `README.md` documents installation, workspace configuration, and example usage.
 - `Cargo.lock`: committed dependency lockfile.
 - `target/`: generated build output, ignored by Git.
 
@@ -53,5 +71,7 @@ Use `cargo fmt` to apply formatting.
   from normal command output and avoid logging secrets.
 - Update `Cargo.lock` when dependencies change. Do not edit generated build
   output or unrelated local agent state.
+- When preparing a release, keep the package version, lockfile, and `vX.Y.Z`
+  tag aligned. Keep installer download names in sync with the release matrix.
 - Run formatting, Clippy, and relevant tests for code changes. Report which
   checks ran and any missing coverage; do not claim unrun checks passed.
