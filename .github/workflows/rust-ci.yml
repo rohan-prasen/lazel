@@ -1,0 +1,30 @@
+name: Rust CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+env:
+  RUSTUP_TOOLCHAIN: stable
+
+jobs:
+  checks:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+      - name: Check formatting
+        run: cargo fmt --check
+      - name: Run Clippy
+        run: cargo clippy --locked --all-targets -- -D warnings
+      - name: Run tests
+        run: cargo test --locked
+      - name: Build Lazel
+        run: cargo build --locked
+      - name: Verify Rust and Python example
+        run: sh examples/mixed-language/verify.sh "$PWD/target/debug/lazel"

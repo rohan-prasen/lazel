@@ -1,6 +1,8 @@
 mod commands;
+mod workspace;
 
 use clap::{Parser, Subcommand};
+use std::process::ExitCode;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -17,19 +19,24 @@ struct Cli {
 enum Commands {
     /// Run a task in the workspace
     Run {
-        /// Name of the task to execute
+        /// Task to execute, in project:task form
+        #[arg(value_name = "PROJECT:TASK")]
         task: String,
     },
 }
 
-fn main() -> anyhow::Result<()> {
+fn main() -> ExitCode {
     let cli = Cli::parse();
 
-    match cli.command {
-        Commands::Run { task } => {
-            commands::run::execute(&task)?;
+    let result = match cli.command {
+        Commands::Run { task } => commands::run::execute(&task),
+    };
+
+    match result {
+        Ok(code) => ExitCode::from(code),
+        Err(error) => {
+            eprintln!("lazel: {error:#}");
+            ExitCode::FAILURE
         }
     }
-
-    Ok(())
 }

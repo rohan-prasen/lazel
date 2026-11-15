@@ -1,0 +1,12 @@
+[projects.generator]
+dir = "generator"
+
+[projects.generator.tasks.build]
+command = "mkdir -p build && rustc main.rs -o build/generate"
+
+[projects.app]
+dir = "app"
+
+[projects.app.tasks.build]
+command = "python3 build.py ../generator/build/generate"
+depends_on = ["generator:build"]

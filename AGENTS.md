@@ -3,10 +3,9 @@
 ## Project status
 
 Lazel is a Rust CLI for a language-agnostic monorepo task orchestrator.
-The repository currently contains a CLI scaffold: `lazel run <task>` prints the
-selected task and a message that execution is not implemented. Do not describe
-task execution, workspace discovery, configuration, caching, or scheduling as
-working features until they exist.
+`lazel run <project>:<task>` finds a `lazel.toml`, validates its configuration
+and task graph, and runs the requested task and its prerequisites sequentially.
+Local caching and parallel execution are future milestones.
 
 ## Layout
 
@@ -14,29 +13,29 @@ working features until they exist.
   parsing and `anyhow` handles fallible command results.
 - `src/main.rs`: CLI arguments, subcommands, and dispatch.
 - `src/commands/mod.rs`: command module exports.
-- `src/commands/run.rs`: `execute(&str)` handler for the `run` subcommand.
-- `tests/`: integration test location; currently contains only `.gitkeep`.
-- `README.md`: brief project description.
+- `src/commands/run.rs`: shell execution and task exit status.
+- `src/workspace.rs`: workspace discovery, config validation, and execution order.
+- `tests/`: CLI integration tests.
+- `examples/mixed-language/`: Rust and Python build example and verification.
+- `README.md`: workspace configuration and example usage.
 - `Cargo.lock`: committed dependency lockfile.
 - `target/`: generated build output, ignored by Git.
 
 ## Development commands
 
-Run commands from the repository root with a Rust toolchain supporting edition
-2024. There is no pinned toolchain or CI workflow in this checkout.
+Run commands from the repository root with stable Rust. The example also
+requires Python 3. GitHub Actions runs the checks on macOS and Linux.
 
 ```sh
 cargo build --locked
 cargo run --locked -- --help
-cargo run --locked -- run build
 cargo fmt --check
 cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked
+sh examples/mixed-language/verify.sh "$PWD/target/debug/lazel"
 ```
 
-The `run build` example selects a task named `build`; it does not build a
-workspace. The test command currently discovers zero tests, so a successful exit
-does not establish behavioral coverage. Use `cargo fmt` to apply formatting.
+Use `cargo fmt` to apply formatting.
 
 ## Change conventions
 
