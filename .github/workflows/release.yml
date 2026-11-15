@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+
+permissions:
+  contents: read
+
+env:
+  RUSTUP_TOOLCHAIN: stable
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-musl
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+          - os: macos-15
+            target: aarch64-apple-darwin
+    env:
+      TARGET: ${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install Rust target
+        run: rustup toolchain install stable --profile minimal --target "$TARGET"
+      - name: Build binary
+        run: cargo build --release --locked --target "$TARGET"
+      - name: Verify and package binary
+        shell: bash
+        run: |
+          version=$("target/$TARGET/release/lazel" --version)
+          if [[ "$version" != "lazel ${GITHUB_REF_NAME#v}" ]]; then
+            printf 'Release tag %s does not match binary version %s\n' "$GITHUB_REF_NAME" "$version" >&2
+            exit 1
+          fi
+
+          archive="lazel-$TARGET.tar.gz"
+          mkdir -p dist
+          tar -czf "dist/$archive" LICENSE-APACHE LICENSE-MIT -C "target/$TARGET/release" lazel
+          cd dist
+          shasum -a 256 "$archive" > "$archive.sha256"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lazel-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          compression-level: 0
+
+  publish:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: lazel-*
+          path: dist
+          merge-multiple: true
+      - name: Publish archives and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes \
+            --title "Lazel $GITHUB_REF_NAME"

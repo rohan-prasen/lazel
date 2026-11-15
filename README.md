@@ -2,6 +2,21 @@
 
 Lazel (*lazy + Bazel*) is a Rust CLI that runs tasks across projects in a monorepo. Define commands and their prerequisites in one `lazel.toml` and run them in dependency order on macOS or Linux.
 
+## Install
+
+Install the latest release on macOS or Linux (x86-64 and ARM64).
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/rohan-prasen/lazel/main/install.sh | bash
+```
+
+The installer verifies the download's SHA-256 checksum and installs `lazel` in `$HOME/.local/bin`. Add that directory to your `PATH` if needed, then run `lazel --version`.
+
+```sh
+export PATH="$HOME/.local/bin:$PATH"
+lazel --version
+```
+
 ## Try it
 
 Run these commands from the repository root with stable Rust and Python 3 installed.
