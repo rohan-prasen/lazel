@@ -27,3 +27,7 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 ## Change log
 
 - 2026-11-15 — Added a rule in `AGENTS.md` to log every project-changing tool call or edit here as a short, dated entry.
+- 2026-11-15 — Polished the README introduction and added release, CI, license, and stars badges and a link to star the repository.
+- 2026-11-15 — Updated the README badges to show release build status and link directly to the repository's Star button.
+- 2026-11-15 — Moved Rust checks behind version tags and added a release eligibility check for a newer crate version and source or dependency changes.
+- 2026-11-15 — Added release eligibility regression tests for skipped and qualifying releases.

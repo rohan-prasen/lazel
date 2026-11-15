@@ -1,6 +1,11 @@
 # Lazel
 
-Lazel (*lazy + Bazel*) is a Rust CLI that runs tasks across projects in a monorepo. Define commands and their prerequisites in one `lazel.toml` and run them in dependency order on macOS or Linux.
+[![Latest release](https://img.shields.io/github/v/release/rohan-prasen/lazel)](https://github.com/rohan-prasen/lazel/releases/latest)
+[![Release build](https://github.com/rohan-prasen/lazel/actions/workflows/release.yml/badge.svg?event=push)](https://github.com/rohan-prasen/lazel/actions/workflows/release.yml)
+[![License files](https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-64748b)](#license)
+[![GitHub stars](https://img.shields.io/github/stars/rohan-prasen/lazel?logo=github)](https://github.com/rohan-prasen/lazel)
+
+Lazel (*lazy + Bazel*) is a Rust task runner for mixed-language monorepos. Define your existing build, test, and lint commands in one `lazel.toml`, then run them in dependency order from any project directory on macOS or Linux.
 
 ## Install
 
@@ -56,3 +61,9 @@ depends_on = ["generator:build"]
 Run a task with `lazel run <project>:<task>`. Lazel validates the whole workspace before running commands, runs prerequisites sequentially in declaration order, and runs shared prerequisites once per invocation. On failure it stops and returns the shell's exit status. Lazel writes its progress and diagnostics to stderr.
 
 See the [v0.1 implementation plan](docs/superpowers/plans/2026-11-15-lazel-implementation.md) for release checks and the roadmap.
+
+If Lazel helps with your monorepo, [star the repository on GitHub](https://github.com/rohan-prasen/lazel).
+
+## License
+
+See the [MIT](LICENSE-MIT) and [Apache 2.0](LICENSE-APACHE) license files.

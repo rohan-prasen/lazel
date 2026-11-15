@@ -42,7 +42,7 @@ parallel execution.
 ## Development commands
 
 Run commands from the repository root with stable Rust. The example also
-requires Python 3. GitHub Actions runs the checks on macOS and Linux.
+requires Python 3.
 
 ```sh
 cargo build --locked
@@ -54,6 +54,17 @@ sh examples/mixed-language/verify.sh "$PWD/target/debug/lazel"
 ```
 
 Use `cargo fmt` to apply formatting.
+
+## Releases
+
+Run routine checks locally. When source or dependency changes are ready to
+ship, update the version in `Cargo.toml` and `Cargo.lock`, commit and push those
+changes, then push the matching `vX.Y.Z` tag. The release workflow compares the
+tagged commit with the latest published release before starting Rust jobs.
+An eligible release runs the macOS and Linux checks, builds the four release
+targets, and publishes the binaries and checksums on GitHub.
+Run `python3 .github/scripts/test_check_release.py` when changing the release
+eligibility check.
 
 ## Change conventions
 
