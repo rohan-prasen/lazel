@@ -1,1 +1,14 @@
+# build files
 /target
+
+# env files
+.env
+.env.*
+!.env.example
+
+# plugin files
+.claude-flow/
+.swarm/
+
+# IDE settings
+.idea/
