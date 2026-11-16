@@ -54,3 +54,4 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-16 — Replaced the unstable Windows path API, added manual Rust CI with independent matrix jobs, and documented the release failure and recovery workflow.
 - 2026-11-16 — Recorded the passing four-platform Rust CI run and both native Windows regression test results.
 - 2026-11-16 — Prepared `v0.1.3` with the verified Windows fix while preserving the earlier `v0.1.2` tag.
+- 2026-11-16 — Switched the README's PowerShell bootstrap to the requested one-line `irm | iex` command.

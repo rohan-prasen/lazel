@@ -29,10 +29,7 @@ lazel --version
 Run this in PowerShell. The [latest release](https://github.com/rohan-prasen/lazel/releases/latest) must include the Windows ZIP for your architecture and its `.sha256` file.
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command {
-    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-    irm -UseBasicParsing https://raw.githubusercontent.com/rohan-prasen/lazel/main/script/install.ps1 | iex
-}
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/rohan-prasen/lazel/main/script/install.ps1 | iex"
 ```
 
 Lazel installs to `%USERPROFILE%\.local\bin`. Add it to your current PowerShell session's `PATH` if needed and verify the installation.
