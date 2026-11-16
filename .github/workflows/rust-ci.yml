@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-2025, windows-11-arm]
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust toolchain
@@ -28,4 +28,5 @@ jobs:
       - name: Build Lazel
         run: cargo build --locked
       - name: Verify Rust and Python example
+        if: runner.os != 'Windows'
         run: sh examples/mixed-language/verify.sh "$PWD/target/debug/lazel"

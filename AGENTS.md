@@ -17,8 +17,8 @@
 Lazel is a Rust CLI for a language-agnostic monorepo task orchestrator.
 `lazel run <project>:<task>` finds a `lazel.toml`, validates its configuration
 and task graph, and runs the requested task and its prerequisites sequentially.
-The shell installer distributes prebuilt binaries for macOS and Linux on x86-64
-and ARM64. Opt-in local caching is the next milestone, followed by bounded
+The installers distribute prebuilt binaries for macOS, Linux, and Windows on
+x86-64 and ARM64. Opt-in local caching is the next milestone, followed by bounded
 parallel execution.
 
 ## Layout
@@ -31,8 +31,8 @@ parallel execution.
 - `src/workspace.rs`: workspace discovery, config validation, and execution order.
 - `tests/`: CLI integration tests.
 - `examples/mixed-language/`: Rust and Python build example and verification.
-- `install.sh` downloads the latest release, checks its SHA-256 digest, and
-  installs `lazel` in `$HOME/.local/bin`.
+- `script/install.sh` and `script/install.ps1` verify and install the latest
+  release for macOS/Linux and Windows, respectively.
 - `.github/workflows/rust-ci.yml` checks builds, tests, and the example.
 - `.github/workflows/release.yml` builds and publishes binaries on version tags.
 - `README.md` documents installation, workspace configuration, and example usage.
@@ -61,8 +61,8 @@ Run routine checks locally. When source or dependency changes are ready to
 ship, update the version in `Cargo.toml` and `Cargo.lock`, commit and push those
 changes, then push the matching `vX.Y.Z` tag. The release workflow compares the
 tagged commit with the latest published release before starting Rust jobs.
-An eligible release runs the macOS and Linux checks, builds the four release
-targets, and publishes the binaries and checksums on GitHub.
+An eligible release runs the macOS, Linux, and Windows checks, builds the six
+release targets, and publishes the binaries and checksums on GitHub.
 Run `python3 .github/scripts/test_check_release.py` when changing the release
 eligibility check.
 

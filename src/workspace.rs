@@ -91,6 +91,8 @@ impl Workspace {
                 "project directory for '{project}' is not a directory: '{}'",
                 dir.display()
             );
+            #[cfg(windows)]
+            let dir = cmd_directory(&dir).with_context(|| format!("project '{project}'"))?;
 
             for (name, task) in config.tasks {
                 let selector = format!("{project}:{name}");
@@ -203,6 +205,35 @@ fn find_root(start: &Path) -> Result<PathBuf> {
         "no lazel.toml found from '{}' to the filesystem root",
         start.display()
     );
+}
+
+#[cfg(windows)]
+fn cmd_directory(dir: &Path) -> Result<PathBuf> {
+    use std::path::{Component, Prefix};
+
+    let Some(Component::Prefix(prefix)) = dir.components().next() else {
+        bail!(
+            "expected an absolute Windows project directory: '{}'",
+            dir.display()
+        );
+    };
+    match prefix.kind() {
+        Prefix::Disk(_) => Ok(dir.to_path_buf()),
+        Prefix::VerbatimDisk(_) => {
+            // cmd treats the verbatim prefix as a network path and changes the working directory.
+            let plain = Path::new(dir.as_os_str().slice_encoded_bytes(4..));
+            ensure!(
+                plain.canonicalize().ok().as_deref() == Some(dir),
+                "cmd.exe cannot use project directory '{}'",
+                dir.display()
+            );
+            Ok(plain.to_path_buf())
+        }
+        _ => bail!(
+            "cmd.exe requires a local drive project directory: '{}'",
+            dir.display()
+        ),
+    }
 }
 
 fn valid_name(name: &str) -> bool {

@@ -5,26 +5,46 @@
 [![License files](https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-64748b)](#license)
 [![GitHub stars](https://img.shields.io/github/stars/rohan-prasen/lazel?logo=github)](https://github.com/rohan-prasen/lazel)
 
-Lazel (*lazy + Bazel*) is a Rust task runner for mixed-language monorepos. Define your existing build, test, and lint commands in one `lazel.toml`, then run them in dependency order from any project directory on macOS or Linux.
+Lazel (*lazy + Bazel*) is a Rust task runner for mixed-language monorepos. Define your existing build, test, and lint commands in one `lazel.toml`, then run them in dependency order from a project directory on macOS, Linux, or Windows.
 
 ## Install
 
-Install the latest release on macOS or Linux (x86-64 and ARM64).
+Both installers support x86-64 and ARM64. They download the latest release, verify its SHA-256 checksum, and print PATH instructions when needed.
+
+### macOS and Linux
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/rohan-prasen/lazel/main/install.sh | bash
+curl -LsSf https://raw.githubusercontent.com/rohan-prasen/lazel/main/script/install.sh | bash
 ```
 
-The installer verifies the download's SHA-256 checksum and installs `lazel` in `$HOME/.local/bin`. Add that directory to your `PATH` if needed, then run `lazel --version`.
+Lazel installs to `$HOME/.local/bin`. Add it to your current shell's `PATH` if needed and verify the installation.
 
 ```sh
 export PATH="$HOME/.local/bin:$PATH"
 lazel --version
 ```
 
+### Windows
+
+Run this in PowerShell. The [latest release](https://github.com/rohan-prasen/lazel/releases/latest) must include the Windows ZIP for your architecture and its `.sha256` file.
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+    irm -UseBasicParsing https://raw.githubusercontent.com/rohan-prasen/lazel/main/script/install.ps1 | iex
+}
+```
+
+Lazel installs to `%USERPROFILE%\.local\bin`. Add it to your current PowerShell session's `PATH` if needed and verify the installation.
+
+```powershell
+$env:Path = "$env:USERPROFILE\.local\bin;$env:Path"
+lazel --version
+```
+
 ## Try it
 
-Run these commands from the repository root with stable Rust and Python 3 installed.
+On macOS or Linux, run these commands from the repository root with stable Rust and Python 3 installed.
 
 ```sh
 cargo build --locked
@@ -55,10 +75,20 @@ depends_on = ["generator:build"]
 ```
 
 - `dir` is a path relative to the workspace root, such as `app` or `.`. It must resolve to an existing directory inside the workspace.
-- `command` is a nonblank command string passed to `/bin/sh -c` from the project directory. Commands inherit your environment, standard streams, and privileges. Run tasks only from workspace configurations you trust.
+- `command` is a nonblank shell command run from the project directory. Use `/bin/sh` syntax on macOS and Linux and `cmd.exe` syntax on Windows. Commands inherit your environment, standard streams, and privileges. Run tasks only from workspace configurations you trust.
 - `depends_on` is an optional list of `project:task` identifiers. Project and task names start with a lowercase ASCII letter and can also contain digits, hyphens, and underscores.
 
 Run a task with `lazel run <project>:<task>`. Lazel validates the whole workspace before running commands, runs prerequisites sequentially in declaration order, and runs shared prerequisites once per invocation. On failure it stops and returns the shell's exit status. Lazel writes its progress and diagnostics to stderr.
+
+On Windows, save this example as `lazel.toml` in a folder on a local drive and run `lazel run app:hello` from that folder.
+
+```toml
+[projects.app]
+dir = "."
+
+[projects.app.tasks.hello]
+command = "echo Hello from %COMPUTERNAME%"
+```
 
 See the [v0.1 implementation plan](docs/superpowers/plans/2026-11-15-lazel-implementation.md) for release checks and the roadmap.
 

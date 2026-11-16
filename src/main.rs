@@ -2,7 +2,7 @@ mod commands;
 mod workspace;
 
 use clap::{Parser, Subcommand};
-use std::process::ExitCode;
+use std::process;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -25,18 +25,19 @@ enum Commands {
     },
 }
 
-fn main() -> ExitCode {
+fn main() {
     let cli = Cli::parse();
 
     let result = match cli.command {
         Commands::Run { task } => commands::run::execute(&task),
     };
 
-    match result {
-        Ok(code) => ExitCode::from(code),
+    let code = match result {
+        Ok(code) => code,
         Err(error) => {
             eprintln!("lazel: {error:#}");
-            ExitCode::FAILURE
+            1
         }
-    }
+    };
+    process::exit(code);
 }

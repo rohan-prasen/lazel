@@ -31,24 +31,42 @@ main() (
     trap 'rm -rf -- "$work_dir"' EXIT
 
     archive="lazel-$target.tar.gz"
-    url="https://github.com/rohan-prasen/lazel/releases/latest/download/$archive"
-    curl --proto '=https' --proto-redir '=https' --retry 3 -fsSL "$url" -o "$work_dir/$archive"
-    curl --proto '=https' --proto-redir '=https' --retry 3 -fsSL "$url.sha256" -o "$work_dir/$archive.sha256"
+    release_url="https://github.com/rohan-prasen/lazel/releases/latest"
+    printf 'Downloading Lazel for %s\n' "$target"
+    for asset in "$archive" "$archive.sha256"; do
+        if ! curl --proto '=https' --proto-redir '=https' --retry 3 -LsSf \
+            "$release_url/download/$asset" -o "$work_dir/$asset"; then
+            printf 'Could not download %s. Check your connection and the assets at %s.\n' "$asset" "$release_url" >&2
+            return 1
+        fi
+    done
 
-    read -r expected _ < "$work_dir/$archive.sha256"
+    printf 'Verifying SHA-256 checksum\n'
+    if ! read -r expected _ < "$work_dir/$archive.sha256" || [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+        printf 'The release has an invalid SHA-256 checksum file.\n' >&2
+        return 1
+    fi
     actual=$("${checksum[@]}" < "$work_dir/$archive")
     if [[ "${actual%% *}" != "$expected" ]]; then
         printf 'Lazel download failed SHA-256 verification.\n' >&2
         return 1
     fi
 
-    tar -xOzf "$work_dir/$archive" lazel > "$work_dir/lazel"
+    printf 'Installing Lazel to %s\n' "$install_dir"
+    if ! tar -xOzf "$work_dir/$archive" lazel > "$work_dir/lazel" || [[ ! -s "$work_dir/lazel" ]]; then
+        printf 'Could not extract the Lazel executable from %s.\n' "$archive" >&2
+        return 1
+    fi
     chmod 755 "$work_dir/lazel"
-    mv -f -- "$work_dir/lazel" "$destination"
+    if ! mv -f -- "$work_dir/lazel" "$destination"; then
+        printf 'Could not replace %s. Check its permissions and try again.\n' "$destination" >&2
+        return 1
+    fi
     printf 'Installed Lazel to %s\n' "$destination"
     if [[ ":$PATH:" != *":$install_dir:"* ]]; then
-        printf 'Add Lazel to your PATH with: export PATH="$HOME/.local/bin:$PATH"\n'
+        printf 'To use Lazel in this shell, run:\n  export PATH="$HOME/.local/bin:$PATH"\n'
     fi
+    printf 'Verify your installation with: lazel --version\n'
 )
 
 main

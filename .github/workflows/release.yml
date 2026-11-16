@@ -50,6 +50,10 @@ jobs:
             target: x86_64-apple-darwin
           - os: macos-15
             target: aarch64-apple-darwin
+          - os: windows-2025
+            target: x86_64-pc-windows-msvc
+          - os: windows-11-arm
+            target: aarch64-pc-windows-msvc
     env:
       TARGET: ${{ matrix.target }}
     steps:
@@ -57,10 +61,13 @@ jobs:
         with:
           persist-credentials: false
       - name: Install Rust target
-        run: rustup toolchain install stable --profile minimal --target "$TARGET"
+        run: rustup toolchain install stable --profile minimal --target ${{ matrix.target }}
       - name: Build binary
-        run: cargo build --release --locked --target "$TARGET"
-      - name: Verify and package binary
+        env:
+          RUSTFLAGS: ${{ runner.os == 'Windows' && '-C target-feature=+crt-static' || '' }}
+        run: cargo build --release --locked --target ${{ matrix.target }}
+      - name: Verify and package Unix binary
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           version=$("target/$TARGET/release/lazel" --version)
@@ -74,6 +81,33 @@ jobs:
           tar -czf "dist/$archive" LICENSE-APACHE LICENSE-MIT -C "target/$TARGET/release" lazel
           cd dist
           shasum -a 256 "$archive" > "$archive.sha256"
+      - name: Verify and package Windows binary
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $binary = "target/$env:TARGET/release/lazel.exe"
+          $version = & $binary --version
+          if ($LASTEXITCODE -ne 0 -or $version -cne "lazel $($env:GITHUB_REF_NAME.Substring(1))") {
+              throw "Release tag $env:GITHUB_REF_NAME does not match binary version '$version'."
+          }
+
+          $archive = "lazel-$env:TARGET.zip"
+          New-Item -ItemType Directory -Path dist | Out-Null
+          Compress-Archive -LiteralPath $binary, LICENSE-APACHE, LICENSE-MIT -DestinationPath "dist/$archive"
+          $hash = (Get-FileHash -LiteralPath "dist/$archive" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $archive" | Set-Content -LiteralPath "dist/$archive.sha256" -Encoding ascii
+      - name: Verify Unix installer
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash tests/install_unix.sh "dist/lazel-$TARGET.tar.gz"
+      - name: Verify Windows PowerShell installer
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./tests/install_windows.ps1 "dist/lazel-$env:TARGET.zip"
+      - name: Verify PowerShell 7 installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/install_windows.ps1 "dist/lazel-$env:TARGET.zip"
       - uses: actions/upload-artifact@v7
         with:
           name: lazel-${{ matrix.target }}
