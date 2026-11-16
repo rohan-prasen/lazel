@@ -42,3 +42,4 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-16 — Recorded the Windows release, installer paths, and task-runner scope in the OpenSpec proposal.
 - 2026-11-16 — Documented the Windows design and added OpenSpec requirements for native task execution, release assets, and verified installation.
 - 2026-11-16 — Recorded completed Windows implementation tasks and the remaining hosted and live-release checks in OpenSpec.
+- 2026-11-16 — Bumped the crate and lockfile to `0.1.2` for the first Windows release.
