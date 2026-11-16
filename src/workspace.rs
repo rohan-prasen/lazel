@@ -209,6 +209,8 @@ fn find_root(start: &Path) -> Result<PathBuf> {
 
 #[cfg(windows)]
 fn cmd_directory(dir: &Path) -> Result<PathBuf> {
+    use std::ffi::OsString;
+    use std::os::windows::ffi::{OsStrExt, OsStringExt};
     use std::path::{Component, Prefix};
 
     let Some(Component::Prefix(prefix)) = dir.components().next() else {
@@ -221,13 +223,14 @@ fn cmd_directory(dir: &Path) -> Result<PathBuf> {
         Prefix::Disk(_) => Ok(dir.to_path_buf()),
         Prefix::VerbatimDisk(_) => {
             // cmd treats the verbatim prefix as a network path and changes the working directory.
-            let plain = Path::new(dir.as_os_str().slice_encoded_bytes(4..));
+            let wide_path: Vec<_> = dir.as_os_str().encode_wide().skip(4).collect();
+            let plain = PathBuf::from(OsString::from_wide(&wide_path));
             ensure!(
                 plain.canonicalize().ok().as_deref() == Some(dir),
                 "cmd.exe cannot use project directory '{}'",
                 dir.display()
             );
-            Ok(plain.to_path_buf())
+            Ok(plain)
         }
         _ => bail!(
             "cmd.exe requires a local drive project directory: '{}'",

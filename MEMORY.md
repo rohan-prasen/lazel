@@ -24,6 +24,13 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - All four release targets passed their CI binary smoke checks. The published release contained all four archives and their four checksum files. [Release workflow run](https://github.com/rohan-prasen/lazel/actions/runs/43711826812).
 - The next milestone is opt-in local caching with declared inputs, outputs, and environment. The acceptance case is a repeat build that skips eligible work, restores missing outputs, and invalidates affected tasks when an input or prerequisite changes. Bounded parallel execution follows. [Approved roadmap](docs/superpowers/specs/2026-11-15-lazel-design.md).
 
+## 2026-11-16 — v0.1.2 release failure
+
+- **Failure.** Release eligibility passed for tag `v0.1.2` at `53bbc8a`. Linux and macOS checks passed. On `windows-2025`, `cargo clippy --locked --all-targets -- -D warnings` stopped with `E0658` in `src/workspace.rs` while compiling the binary and its test target. The Windows ARM64 job was canceled by matrix fail-fast. All six packaging jobs and publication were skipped, so this run produced no Windows release assets. [Failed release run](https://github.com/rohan-prasen/lazel/actions/runs/43806336427)
+- **Root cause.** The Windows-only `cmd_directory` helper used `OsStr::slice_encoded_bytes` to remove the four-character `\\?\` prefix from a canonical local drive path. Rust 1.100.0 still gates this method behind `os_str_slice`. The local macOS checks could not catch the error because `#[cfg(windows)]` excludes the helper from compilation there. [Rust tracking issue](https://github.com/rust-lang/rust/issues/118485)
+- **Fix.** The helper now removes the prefix using the stable Windows `OsStrExt::encode_wide` and `OsStringExt::from_wide` APIs. The UTF-16 round trip preserves the original path code units. The helper still verifies that the ordinary drive path resolves to the same directory before passing it to `cmd.exe`. The Windows CLI fixture now uses a project path with both a space and a non-ASCII character. [Rust Windows string extensions](https://doc.rust-lang.org/std/os/windows/ffi/trait.OsStrExt.html)
+- **Verification and recovery.** Rust CI can now be dispatched on a branch before tagging. Matrix jobs finish independently so a failure on one platform still yields results for the other three. `v0.1.2` points to the original source, and rerunning its workflow checks the same commit. A new release tag is needed to publish the corrected code. [GitHub Actions rerun behavior](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs)
+
 ## Change log
 
 - 2026-11-15 — Added a rule in `AGENTS.md` to log every project-changing tool call or edit here as a short, dated entry.
@@ -43,3 +50,4 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-16 — Documented the Windows design and added OpenSpec requirements for native task execution, release assets, and verified installation.
 - 2026-11-16 — Recorded completed Windows implementation tasks and the remaining hosted and live-release checks in OpenSpec.
 - 2026-11-16 — Bumped the crate and lockfile to `0.1.2` for the first Windows release.
+- 2026-11-16 — Replaced the unstable Windows path API, added manual Rust CI with independent matrix jobs, and documented the release failure and recovery workflow.

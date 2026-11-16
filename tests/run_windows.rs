@@ -6,7 +6,7 @@ use std::process::Command;
 #[test]
 fn runs_quoted_cmd_recipes_in_project_directory_and_stops_on_failure() {
     let root = tempfile::tempdir().unwrap();
-    let project = root.path().join("app project");
+    let project = root.path().join("app café");
     let nested = project.join("nested directory");
     fs::create_dir_all(&nested).unwrap();
     fs::write(
@@ -18,7 +18,7 @@ fn runs_quoted_cmd_recipes_in_project_directory_and_stops_on_failure() {
         root.path().join("lazel.toml"),
         r#"
 [projects.app]
-dir = 'app project'
+dir = 'app café'
 [projects.app.tasks.prepare]
 command = '''"write output.cmd"'''
 [projects.app.tasks.check]

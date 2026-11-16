@@ -55,14 +55,29 @@ sh examples/mixed-language/verify.sh "$PWD/target/debug/lazel"
 
 Use `cargo fmt` to apply formatting.
 
-## Releases
+## Build and release workflow
 
-Run routine checks locally. When source or dependency changes are ready to
-ship, update the version in `Cargo.toml` and `Cargo.lock`, commit and push those
-changes, then push the matching `vX.Y.Z` tag. The release workflow compares the
-tagged commit with the latest published release before starting Rust jobs.
-An eligible release runs the macOS, Linux, and Windows checks, builds the six
-release targets, and publishes the binaries and checksums on GitHub.
+1. Run the local development checks. For platform-specific changes, push the
+   candidate branch and run `gh workflow run rust-ci.yml --ref main`, replacing
+   `main` with the candidate branch when needed. Rust CI runs formatting,
+   Clippy with warnings denied, locked tests, and a locked build on Linux,
+   macOS, Windows x86-64, and Windows ARM64. The mixed-language example runs on
+   Linux and macOS. Wait for all checks before tagging platform changes.
+2. When source or dependency changes are ready to ship, update both `Cargo.toml`
+   and `Cargo.lock`. Commit the bump, confirm `lazel --version`, and run
+   `python3 .github/scripts/check-release.py CANDIDATE_TAG PREVIOUS_RELEASE_TAG`
+   against the release commit. Use the latest published release as the baseline.
+3. Push the release commit and matching `vX.Y.Z` tag. The tag triggers
+   `release.yml`, which checks eligibility and calls Rust CI before building
+   x86-64 and ARM64 on macOS, Linux, and Windows. The build verifies the binary
+   version, packages the binaries and licenses, generates SHA-256 checksums,
+   and exercises the installers with fixtures. Publication waits for all six
+   builds. Check the Actions conclusion and the published release assets.
+4. If a release fails, inspect the first failed step with
+   `gh run view RUN_ID --log-failed`. Record the failure, fix, and verification
+   in `MEMORY.md`. A rerun uses the original commit, so source fixes need a new
+   release commit and tag after the hosted checks pass.
+
 Run `python3 .github/scripts/test_check_release.py` when changing the release
 eligibility check.
 
