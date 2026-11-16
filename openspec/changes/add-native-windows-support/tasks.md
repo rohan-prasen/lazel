@@ -11,10 +11,10 @@
 ## 3. End-to-end verification
 
 - [x] 3.1 On macOS, run formatting, Clippy, the locked build, the CLI and release eligibility tests, the mixed-language example, and the Bash installer fixture against a built archive.
-- [ ] 3.2 Confirm the first eligible tag passes native Windows CLI and release package checks on x86-64 and ARM64, including the installer fixture under Windows PowerShell 5.1 and PowerShell 7.
-- [ ] 3.3 Confirm both Windows ZIPs and checksums are on the published release. Run the live PowerShell install command and `lazel --version` on both architectures.
+- [x] 3.2 Confirm the release tag passes native Windows CLI and release package checks on x86-64 and ARM64, including the installer fixture under Windows PowerShell 5.1 and PowerShell 7.
+- [ ] 3.3 Run the live PowerShell install command and `lazel --version` on both architectures using the published release.
 
 ## Verification
 
 - The macOS run passed all 13 CLI tests and all six release eligibility tests. The mixed-language example passed from the example root and the nested app directory. The Bash fixture verified clean install, upgrade, and preservation of the installed binary on checksum failure.
-- Native Windows execution and live release verification are pending.
+- The `v0.1.3` release workflow passed native Windows CLI and both PowerShell installer fixture checks on x86-64 and ARM64. Both published Windows ZIPs matched their checksums and their executables matched the corresponding native PE architectures. [Release workflow](https://github.com/rohan-prasen/lazel/actions/runs/43807283695) · [Published assets](https://github.com/rohan-prasen/lazel/releases/tag/v0.1.3)
