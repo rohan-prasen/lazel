@@ -1,0 +1,11 @@
+{
+  "name": "Lazel",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "CARGO_TARGET_DIR": "/tmp/lazel-target"
+  }
+}

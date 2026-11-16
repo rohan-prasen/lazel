@@ -57,3 +57,6 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-16 — Prepared `v0.1.3` with the verified Windows fix while preserving the earlier `v0.1.2` tag.
 - 2026-11-16 — Switched the README's PowerShell bootstrap to the requested one-line `irm | iex` command.
 - 2026-11-16 — Recorded the successful `v0.1.3` release, checksums, Windows architecture checks, and live macOS install.
+- 2026-11-16 — Replaced the generic Zed template with a Lazel dev container for stable Rust and Python, and added an opt-in firewall helper.
+- 2026-11-16 — Linked the dev container ignore file to the root `.gitignore` and made the firewall helper executable.
+- 2026-11-16 — Verified the dev container on Docker Desktop for Linux ARM64 with formatting, Clippy, 13 CLI tests, a locked build, the Rust/Python example, and two successful applications of the opt-in firewall in a disposable container.
