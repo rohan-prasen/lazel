@@ -23,6 +23,9 @@ enum Commands {
         #[arg(value_name = "PROJECT:TASK")]
         task: String,
     },
+    /// Update Lazel to the latest stable release
+    #[command(visible_alias = "upgrade")]
+    Update,
 }
 
 fn main() {
@@ -30,6 +33,7 @@ fn main() {
 
     let result = match cli.command {
         Commands::Run { task } => commands::run::execute(&task),
+        Commands::Update => commands::update::execute(),
     };
 
     let code = match result {

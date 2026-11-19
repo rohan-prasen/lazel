@@ -56,16 +56,24 @@ jobs:
             target: aarch64-pc-windows-msvc
     env:
       TARGET: ${{ matrix.target }}
+      RUSTFLAGS: ${{ endsWith(matrix.target, '-pc-windows-msvc') && '-C target-feature=+crt-static' || '' }}
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Install Rust target
         run: rustup toolchain install stable --profile minimal --target ${{ matrix.target }}
+      - name: Install the Linux musl toolchain
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+          echo 'CC=musl-gcc' >> "$GITHUB_ENV"
       - name: Build binary
-        env:
-          RUSTFLAGS: ${{ runner.os == 'Windows' && '-C target-feature=+crt-static' || '' }}
         run: cargo build --release --locked --target ${{ matrix.target }}
+      - name: Test the release target
+        run: cargo test --release --locked --target ${{ matrix.target }}
       - name: Verify and package Unix binary
         if: runner.os != 'Windows'
         shell: bash
@@ -131,6 +139,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          changelog_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/CHANGELOG.md"
           gh release create "$GITHUB_REF_NAME" dist/* \
             --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes \
+            --notes "[Full changelog]($changelog_url)" \
             --title "Lazel $GITHUB_REF_NAME"
