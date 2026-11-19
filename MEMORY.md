@@ -60,3 +60,17 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-16 — Replaced the generic Zed template with a Lazel dev container for stable Rust and Python, and added an opt-in firewall helper.
 - 2026-11-16 — Linked the dev container ignore file to the root `.gitignore` and made the firewall helper executable.
 - 2026-11-16 — Verified the dev container on Docker Desktop for Linux ARM64 with formatting, Clippy, 13 CLI tests, a locked build, the Rust/Python example, and two successful applications of the opt-in firewall in a disposable container.
+- 2026-11-19 — Added a CLI regression test for both self-update command names and the official installation path boundary.
+- 2026-11-19 — Added native release discovery, verified downloads, and platform-specific replacement for the `update` and `upgrade` commands, and bumped the package to `0.1.4`.
+- 2026-11-19 — Updated the Cargo lockfile for Lazel 0.1.4 and its native updater dependencies.
+- 2026-11-19 — Documented updater behavior and release history, linked the changelog in generated release notes, and added updater test coverage to the six-target packaging workflow.
+- 2026-11-19 — Locked a maintained ZIP release for the Windows updater.
+- 2026-11-19 — Added offline updater fixtures for release selection, verification failures, concurrent updates, and replacing a running executable.
+- 2026-11-19 — Formatted the updater implementation and its regression tests.
+- 2026-11-19 — Matched Windows archive entries against the ZIP crate's exact filename bytes.
+- 2026-11-19 — Isolated failure fixtures and added a regression test for duplicate Windows archive entries.
+- 2026-11-19 — Rejected duplicate ZIP paths before extracting the Windows executable and shared the release build flags between build and test steps.
+- 2026-11-19 — Selected static Windows build flags from the release matrix target and clarified errors reading the executable entry from a ZIP.
+- 2026-11-19 — Formatted the ZIP validation and isolated updater fixtures after review.
+- 2026-11-19 — Fixed Windows ZIP extraction to decompress the exact matched executable and included exit status in version-check failures.
+- 2026-11-19 — Kept the musl C compiler for Rustls dependencies and restored Rust's default linker after the x86-64 musl linker override produced a crashing dynamic executable.

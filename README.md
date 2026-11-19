@@ -39,6 +39,23 @@ $env:Path = "$env:USERPROFILE\.local\bin;$env:Path"
 lazel --version
 ```
 
+## Update Lazel
+
+Run `lazel update` or `lazel upgrade` from any directory. Either command checks
+the latest stable GitHub release and installs it if it is newer. Lazel verifies
+the archive checksum and the new executable's version before replacing your copy.
+
+Self-update applies to the per-user locations above. For other locations, use
+the original installation method. If you have Lazel 0.1.3 or earlier, rerun your
+installer once to get the update commands.
+
+On Windows, Lazel keeps the previous executable as `.lazel-update.previous.exe`
+beside `lazel.exe`. If an interrupted update leaves `lazel.exe` missing, close
+any running Lazel processes and rename the backup to `lazel.exe`, or rerun the
+installer.
+
+See the [changelog](CHANGELOG.md) for release details.
+
 ## Try it
 
 On macOS or Linux, run these commands from the repository root with stable Rust and Python 3 installed.
