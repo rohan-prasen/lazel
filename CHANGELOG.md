@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-- Moved updater unit tests under `tests/` and kept the release eligibility
-  test as an ignored local script.
+- Moved updater unit tests to `tests/unit/update.rs`, named the CLI test
+  `tests/update_cli.rs`, and kept the release eligibility test as an ignored
+  local script.
 
 ## [0.1.4]
 

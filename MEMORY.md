@@ -76,3 +76,5 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-19 — Kept the musl C compiler for Rustls dependencies and restored Rust's default linker after the x86-64 musl linker override produced a crashing dynamic executable.
 - 2026-11-19 — Moved the updater unit tests under `tests/`, added an ignore rule for the local release eligibility test, and documented the test layout.
 - 2026-11-19 — Removed the release eligibility test from Git tracking while preserving its local copy and verified the cleanup with the local Rust and Python checks.
+- 2026-11-19 — Renamed the updater CLI test to `tests/update_cli.rs` to distinguish it from the updater unit tests.
+- 2026-11-19 — Verified that the renamed CLI test and the updater unit tests both run in the locked test suite.
