@@ -12,3 +12,6 @@
 
 # IDE settings
 .idea/
+
+# local release tests
+/.github/scripts/test_check_release.py

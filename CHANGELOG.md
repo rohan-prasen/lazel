@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Moved updater unit tests under `tests/` and kept the release eligibility
+  test as an ignored local script.
+
 ## [0.1.4]
 
 - Added `lazel update` and its alias `lazel upgrade` for the official per-user

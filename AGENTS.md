@@ -29,7 +29,7 @@ parallel execution.
 - `src/commands/mod.rs`: command module exports.
 - `src/commands/run.rs`: shell execution and task exit status.
 - `src/workspace.rs`: workspace discovery, config validation, and execution order.
-- `tests/`: CLI integration tests.
+- `tests/`: Rust unit tests, CLI integration tests, and installer fixtures.
 - `examples/mixed-language/`: Rust and Python build example and verification.
 - `script/install.sh` and `script/install.ps1` verify and install the latest
   release for macOS/Linux and Windows, respectively.
@@ -78,8 +78,8 @@ Use `cargo fmt` to apply formatting.
    in `MEMORY.md`. A rerun uses the original commit, so source fixes need a new
    release commit and tag after the hosted checks pass.
 
-Run `python3 .github/scripts/test_check_release.py` when changing the release
-eligibility check.
+When changing the release eligibility check, run
+`python3 .github/scripts/test_check_release.py` if the local fixtures are available.
 
 ## Change conventions
 
@@ -91,7 +91,7 @@ eligibility check.
   operational errors. Validate input before filesystem or process side effects.
 - Keep changes scoped to the requested behavior. Check callers before changing
   a handler's signature or CLI behavior, and update affected documentation.
-- Add focused unit tests beside new logic or CLI integration tests in `tests/`
+- Add focused unit tests or CLI integration tests in `tests/`
   when implementing behavior. Keep placeholder output distinct from real work.
 - Prefer verbose diagnostics during development; keep diagnostic output separate
   from normal command output and avoid logging secrets.

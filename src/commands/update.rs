@@ -293,6 +293,7 @@ fn replace_executable(destination: &Path, staged: &Path) -> Result<()> {
 }
 
 #[cfg(test)]
+#[path = "../../tests/unit/update.rs"]
 mod tests;
 
 #[cfg(windows)]
