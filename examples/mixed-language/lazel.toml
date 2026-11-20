@@ -3,6 +3,10 @@ dir = "generator"
 
 [projects.generator.tasks.build]
 command = "mkdir -p build && rustc main.rs -o build/generate"
+cache = true
+inputs = ["main.rs"]
+outputs = ["build"]
+env = ["HOME", "RUSTUP_HOME", "RUSTUP_TOOLCHAIN", "LAZEL_RUST_VERSION", "SDKROOT", "MACOSX_DEPLOYMENT_TARGET"]
 
 [projects.app]
 dir = "app"
@@ -10,3 +14,7 @@ dir = "app"
 [projects.app.tasks.build]
 command = "python3 build.py ../generator/build/generate"
 depends_on = ["generator:build"]
+cache = true
+inputs = ["app.py", "build.py"]
+outputs = ["build"]
+env = ["LAZEL_PYTHON_VERSION"]
