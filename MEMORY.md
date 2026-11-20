@@ -113,4 +113,5 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-20 — Passed formatting, strict Clippy, all 36 local tests, a locked build, and the Rust/Python cache example on Apple Silicon.
 - 2026-11-20 — Confirmed native Windows x86-64 and ARM64 fixtures for cache restoration, concurrent locking, path conflicts, and shell quoting.
 - 2026-11-20 — Recorded the passing four-platform Rust CI run for pull request #2 and completed the local caching checklist. [Rust CI run](https://github.com/rohan-prasen/lazel/actions/runs/44701753961)
+- 2026-11-20 — Bumped the manifest and lockfile to 0.1.5 after merging opt-in local caching in pull request #2.
 - 2026-11-20 — Verified that the cache fingerprint distinguishes missing and empty environment values.

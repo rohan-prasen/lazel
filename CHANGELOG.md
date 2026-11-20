@@ -1,7 +1,13 @@
 # Changelog
 
-## Unreleased
+## [0.1.5]
 
+- Tasks can opt into local caching with declared inputs, outputs, and
+  environment variables. A cache hit verifies and restores the declared files.
+- Use `lazel run --no-cache <project>:<task>` to run the recipes with the
+  inherited environment and bypass the cache.
+- The Rust/Python example exercises cache hits and output restoration. Native
+  CLI tests cover invalidation, recovery, and concurrent runs.
 - Moved updater unit tests to `tests/unit/update.rs`, named the CLI test
   `tests/update_cli.rs`, and kept the release eligibility test as an ignored
   local script.
@@ -52,6 +58,7 @@
   and shell exit status propagation on macOS and Linux.
 - Added CLI integration tests, Rust CI, and a mixed Rust and Python example.
 
+[0.1.5]: https://github.com/rohan-prasen/lazel/releases/tag/v0.1.5
 [0.1.4]: https://github.com/rohan-prasen/lazel/releases/tag/v0.1.4
 [0.1.3]: https://github.com/rohan-prasen/lazel/releases/tag/v0.1.3
 [0.1.1]: https://github.com/rohan-prasen/lazel/releases/tag/v0.1.1
