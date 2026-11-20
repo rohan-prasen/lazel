@@ -83,3 +83,8 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-20 — Added the four missing default triage labels to Lazel's GitHub issue tracker.
 - 2026-11-20 — Added the five default triage labels to Linear's Solo team.
 - 2026-11-20 — Configured the Matt Pocock engineering skills for GitHub Issues, Linear, shared triage labels, and single-context domain docs.
+- 2026-11-20 — Scaffolded the OpenSpec change for opt-in local task caching.
+- 2026-11-20 — Wrote the proposal for opt-in local task caching and its CLI and compatibility scope.
+- 2026-11-20 — Specified cache configuration, invalidation, output recovery, concurrency, and ordered execution behavior.
+- 2026-11-20 — Documented the local cache design for environment isolation, deterministic keys, coordinated writes, and verified output rollback.
+- 2026-11-20 — Added the implementation checklist and cross-platform verification steps for local task caching.
