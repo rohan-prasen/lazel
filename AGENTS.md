@@ -12,6 +12,20 @@
   Summarize what changed in one sentence. An editing tool call and its log
   entry count as one operation.
 
+## Agent skills
+
+### Issue tracker
+
+Use GitHub Issues for public reports and the Lazel project in Linear for planned engineering work. See [issue-tracker.md](docs/agents/issue-tracker.md).
+
+### Triage labels
+
+Use the five default triage labels in both trackers. See [triage-labels.md](docs/agents/triage-labels.md).
+
+### Domain docs
+
+Lazel uses a single-context glossary and ADR directory. See [domain.md](docs/agents/domain.md).
+
 ## Project status
 
 Lazel is a Rust CLI for a language-agnostic monorepo task orchestrator.
