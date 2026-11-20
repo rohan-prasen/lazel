@@ -83,3 +83,34 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-20 — Added the four missing default triage labels to Lazel's GitHub issue tracker.
 - 2026-11-20 — Added the five default triage labels to Linear's Solo team.
 - 2026-11-20 — Configured the Matt Pocock engineering skills for GitHub Issues, Linear, shared triage labels, and single-context domain docs.
+- 2026-11-20 — Scaffolded the OpenSpec change for opt-in local task caching.
+- 2026-11-20 — Wrote the proposal for opt-in local task caching and its CLI and compatibility scope.
+- 2026-11-20 — Specified cache configuration, invalidation, output recovery, concurrency, and ordered execution behavior.
+- 2026-11-20 — Documented the local cache design for environment isolation, deterministic keys, coordinated writes, and verified output rollback.
+- 2026-11-20 — Added the implementation checklist and cross-platform verification steps for local task caching.
+- 2026-11-20 — Added cross-platform cache regression tests before implementing the runner changes.
+- 2026-11-20 — Added strict cache configuration and workspace-wide output ownership preflight.
+- 2026-11-20 — Exposed the shared filesystem path comparison for cache preflight.
+- 2026-11-20 — Locked the glob matcher used for cache input declarations.
+- 2026-11-20 — Selected the locally available glob 0.3.3 for locked offline verification.
+- 2026-11-20 — Verified cache preflight and all thirteen legacy Unix runner tests.
+- 2026-11-20 — Added the cache bypass flag and isolated task environments through the shared shell launcher.
+- 2026-11-20 — Verified that an explicit cache bypass preserves shell output, environment, and exit status locally.
+- 2026-11-20 — Added safe project input expansion and versioned fingerprints for task inputs, environment, and prerequisite results.
+- 2026-11-20 — Fixed the fingerprint test to accept independent environment snapshots.
+- 2026-11-20 — Verified fingerprint changes for task inputs, declared toolchains, and prerequisite results.
+- 2026-11-20 — Implemented locked cache storage, verified staging, and rollback when an output restore fails.
+- 2026-11-20 — Wired cache hits, misses, bypasses, and prerequisite fingerprints into the sequential runner.
+- 2026-11-20 — Added regression coverage for corrupt artifacts, unsafe outputs, changing inputs, and dependency restoration.
+- 2026-11-20 — Verified cache publication, workspace serialization, empty results, and skipped writes after failure or input changes.
+- 2026-11-20 — Verified corrupt-entry detection, unsafe output protection, and staged restore rollback.
+- 2026-11-20 — Verified cache status, dependency restoration, and explicit bypass through CLI fixtures.
+- 2026-11-20 — Documented opt-in caching and added cold, warm, restore, and invalidation checks to the Rust/Python example.
+- 2026-11-20 — Recorded the project in restore recovery manifests and made the example verifier tolerate toolchain warnings.
+- 2026-11-20 — Formatted the cache implementation and regression tests.
+- 2026-11-20 — Split portable and Windows-specific path validation to satisfy strict Clippy checks.
+- 2026-11-20 — Applied Rust formatting to the revised path checks.
+- 2026-11-20 — Passed formatting, strict Clippy, all 36 local tests, a locked build, and the Rust/Python cache example on Apple Silicon.
+- 2026-11-20 — Confirmed native Windows x86-64 and ARM64 fixtures for cache restoration, concurrent locking, path conflicts, and shell quoting.
+- 2026-11-20 — Recorded the passing four-platform Rust CI run for pull request #2 and completed the local caching checklist. [Rust CI run](https://github.com/rohan-prasen/lazel/actions/runs/44701753961)
+- 2026-11-20 — Verified that the cache fingerprint distinguishes missing and empty environment values.

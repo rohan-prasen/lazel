@@ -6,6 +6,8 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result, anyhow, bail, ensure};
 use serde::Deserialize;
 
+use crate::cache::{self, CacheConfig};
+
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Config {
@@ -25,15 +27,26 @@ struct TaskConfig {
     command: String,
     #[serde(default)]
     depends_on: Vec<String>,
+    #[serde(default)]
+    cache: bool,
+    #[serde(default)]
+    inputs: Vec<String>,
+    #[serde(default)]
+    outputs: Vec<PathBuf>,
+    #[serde(default)]
+    env: Vec<String>,
 }
 
 pub(crate) struct Task {
     pub dir: PathBuf,
+    pub project: PathBuf,
     pub command: String,
-    depends_on: Vec<String>,
+    pub depends_on: Vec<String>,
+    pub cache: Option<CacheConfig>,
 }
 
 pub(crate) struct Workspace {
+    pub root: PathBuf,
     tasks: BTreeMap<String, Task>,
 }
 
@@ -69,6 +82,7 @@ impl Workspace {
         })?;
 
         let mut tasks = BTreeMap::new();
+        let mut output_roots: Vec<(PathBuf, String)> = Vec::new();
         for (project, config) in config.projects {
             ensure!(valid_name(&project), "invalid project name '{project}'");
             ensure!(
@@ -91,6 +105,7 @@ impl Workspace {
                 "project directory for '{project}' is not a directory: '{}'",
                 dir.display()
             );
+            let relative = dir.strip_prefix(&root)?.to_path_buf();
             #[cfg(windows)]
             let dir = cmd_directory(&dir).with_context(|| format!("project '{project}'"))?;
 
@@ -101,17 +116,37 @@ impl Workspace {
                     !task.command.trim().is_empty(),
                     "blank command for task '{selector}'"
                 );
+                let cache = CacheConfig::new(task.cache, task.inputs, task.outputs, task.env)
+                    .with_context(|| format!("task '{selector}'"))?;
+                if let Some(cache) = &cache {
+                    for output in &cache.outputs {
+                        let output = relative.join(output);
+                        cache::check_output(&root, &output)
+                            .with_context(|| format!("task '{selector}'"))?;
+                        let key = cache::path_key(&output);
+                        for (other, owner) in &output_roots {
+                            ensure!(
+                                !key.starts_with(other) && !other.starts_with(&key),
+                                "overlapping cache output '{}' in '{selector}' and '{owner}'",
+                                output.display()
+                            );
+                        }
+                        output_roots.push((key, selector.clone()));
+                    }
+                }
                 tasks.insert(
                     selector,
                     Task {
                         dir: dir.clone(),
+                        project: relative.clone(),
                         command: task.command,
                         depends_on: task.depends_on,
+                        cache,
                     },
                 );
             }
         }
-        Ok(Self { tasks })
+        Ok(Self { root, tasks })
     }
 
     pub(crate) fn execution_order(&self, selector: &str) -> Result<Vec<(&str, &Task)>> {
