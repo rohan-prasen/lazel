@@ -69,6 +69,32 @@ sh examples/mixed-language/verify.sh "$PWD/target/debug/lazel"
 
 Use `cargo fmt` to apply formatting.
 
+## Git commit workflow
+
+1. Break the work into small, coherent changes that each serve one purpose.
+2. Commit each change during development once its relevant checks pass. Stage
+   only the files or hunks for that change and review `git diff --cached`.
+3. Order commits so prerequisites come first and each commit can be reviewed
+   and tested on its own. Keep a change and its regression tests together if
+   splitting them would leave a failing commit.
+4. Use a merge method that preserves the individual commits in the project history.
+
+Use `type: summary` or `type(scope): summary`. Write a short imperative summary
+that describes the change, such as `feat(cache): restore declared outputs`.
+
+- `feat` — Introduce a feature.
+- `fix` — Fix a bug.
+- `chore` — Do routine maintenance unrelated to a feature or fix and outside
+  source and test files, such as updating a development tool dependency.
+- `refactor` — Restructure code without adding a feature or fixing a bug.
+- `docs` — Update documentation such as the README or this guide.
+- `style` — Adjust formatting, whitespace, or punctuation without changing behavior.
+- `test` — Add or correct tests.
+- `perf` — Improve performance.
+- `ci` — Change continuous integration configuration or workflows.
+- `build` — Change the build system or external build dependencies.
+- `revert` — Revert a previous commit.
+
 ## Build and release workflow
 
 1. Run the local development checks. For platform-specific changes, push the
