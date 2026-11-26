@@ -172,3 +172,5 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-26 — Made Unix output draining preserve queued bytes even when output delivery is slow.
 - 2026-11-26 — Formatted the updated Unix output drain.
 - 2026-11-26 — Measured a four-task diamond over three trials per limit on Apple Silicon, with one- and two-job medians of 323.5 ms and 206.0 ms cold, 7.0 ms and 7.4 ms warm, and 7.1 ms and 6.6 ms restored, plus four verified hits on every warm or restore run, completing OpenSpec task 4.3.
+- 2026-11-26 — Pushed the source candidate branch for hosted native verification.
+- 2026-11-26 — Fixed Windows fixture conditionals after hosted CI showed that successful branches skipped their marker commands.

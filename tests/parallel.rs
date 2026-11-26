@@ -106,11 +106,11 @@ fn overlaps_two_diamond_branches_and_waits_for_a_free_slot() {
     let base = recipe("echo base >> base.count", ">>base.count echo base");
     let final_check = recipe(
         "test -f left.done && test -f right.done && touch build.done",
-        "if not exist left.done exit /b 91 & if not exist right.done exit /b 91 & type nul > build.done",
+        "if exist left.done (if exist right.done (type nul > build.done) else (exit /b 91)) else (exit /b 91)",
     );
     let third = recipe(
         "test -f left.done && touch queued.done",
-        "if not exist left.done exit /b 92 & type nul > queued.done",
+        "if exist left.done (type nul > queued.done) else (exit /b 92)",
     );
     fs::write(
         root.join("lazel.toml"),
@@ -306,11 +306,11 @@ fn interactive_recipe_uses_inherited_input_and_runs_exclusively() {
     let ordinary = gated("ordinary", 0);
     let interactive = recipe(
         "test -f ordinary.done && touch interactive.started && read line && printf 'LAZEL_LINE=%s\n' \"$line\" > received",
-        "if not exist ordinary.done exit /b 90 & type nul > interactive.started & set /p LAZEL_LINE= & set LAZEL_LINE > received",
+        "if exist ordinary.done (type nul > interactive.started & set /p LAZEL_LINE= & set LAZEL_LINE > received) else (exit /b 90)",
     );
     let queued = recipe(
         "test -f received && touch queued.done",
-        "if not exist received exit /b 91 & type nul > queued.done",
+        "if exist received (type nul > queued.done) else (exit /b 91)",
     );
     fs::write(
         root.join("lazel.toml"),
