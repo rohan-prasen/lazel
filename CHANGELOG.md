@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.1.6]
 
 - Select multiple tasks with `lazel run build lint` and narrow the requested
   targets with a project-name `--filter`. Cross-project prerequisites still run.
@@ -9,6 +9,8 @@
   exclusive interactive tasks, and check declared outputs for conflicts.
 - Parallel failures stop new launches while active work finishes. Ctrl-C
   cleans up managed recipe processes on macOS, Linux, and Windows.
+- The guided installers show installed and available versions, verify the
+  staged binary, and can prompt for confirmation in an interactive terminal.
 
 ## [0.1.5]
 
@@ -68,6 +70,7 @@
   and shell exit status propagation on macOS and Linux.
 - Added CLI integration tests, Rust CI, and a mixed Rust and Python example.
 
+[0.1.6]: https://github.com/rohan-prasen/lazel/releases/tag/v0.1.6
 [0.1.5]: https://github.com/rohan-prasen/lazel/releases/tag/v0.1.5
 [0.1.4]: https://github.com/rohan-prasen/lazel/releases/tag/v0.1.4
 [0.1.3]: https://github.com/rohan-prasen/lazel/releases/tag/v0.1.3

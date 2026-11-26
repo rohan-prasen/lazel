@@ -180,3 +180,5 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-26 — Passed local formatting, strict Clippy, 52 tests, the locked build, and the Rust/Python verifier, then passed all four native CI jobs and completed OpenSpec task 4.2. [Rust CI run](https://github.com/rohan-prasen/lazel/actions/runs/45814064399)
 - 2026-11-26 — Opened the release candidate checkout for v0.1.6 preparation.
 - 2026-11-26 — Made installer fixtures mock the latest-release lookup and verify the candidate tag before packaging.
+- 2026-11-26 — Prepared v0.1.6 by updating the manifest, lockfile, and changelog.
+- 2026-11-26 — Verified the v0.1.6 version, formatting, strict Clippy, 52 tests, the locked build, the Rust/Python example, and the local installer fixture.
