@@ -182,3 +182,5 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-26 — Made installer fixtures mock the latest-release lookup and verify the candidate tag before packaging.
 - 2026-11-26 — Prepared v0.1.6 by updating the manifest, lockfile, and changelog.
 - 2026-11-26 — Verified the v0.1.6 version, formatting, strict Clippy, 52 tests, the locked build, the Rust/Python example, and the local installer fixture.
+- 2026-11-26 — Fast-forwarded main to the candidate that passed all four native CI jobs and pushed the v0.1.6 tag.
+- 2026-11-26 — Published v0.1.6 after all six release targets passed their installer checks, verified the published archives against their SHA-256 checksums and architectures, and confirmed a live Apple Silicon install and update from v0.1.5. [Release](https://github.com/rohan-prasen/lazel/releases/tag/v0.1.6) · [Release workflow](https://github.com/rohan-prasen/lazel/actions/runs/45816032437)
