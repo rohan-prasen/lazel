@@ -107,15 +107,15 @@ jobs:
       - name: Verify Unix installer
         if: runner.os != 'Windows'
         shell: bash
-        run: bash tests/install_unix.sh "dist/lazel-$TARGET.tar.gz"
+        run: bash tests/install_unix.sh "dist/lazel-$TARGET.tar.gz" "$GITHUB_REF_NAME"
       - name: Verify Windows PowerShell installer
         if: runner.os == 'Windows'
         shell: powershell
-        run: ./tests/install_windows.ps1 "dist/lazel-$env:TARGET.zip"
+        run: ./tests/install_windows.ps1 "dist/lazel-$env:TARGET.zip" $env:GITHUB_REF_NAME
       - name: Verify PowerShell 7 installer
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./tests/install_windows.ps1 "dist/lazel-$env:TARGET.zip"
+        run: ./tests/install_windows.ps1 "dist/lazel-$env:TARGET.zip" $env:GITHUB_REF_NAME
       - uses: actions/upload-artifact@v7
         with:
           name: lazel-${{ matrix.target }}

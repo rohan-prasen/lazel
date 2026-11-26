@@ -2,6 +2,7 @@
 set -euo pipefail
 
 archive="$(cd -- "$(dirname -- "$1")" && pwd)/$(basename -- "$1")"
+candidate_tag=$2
 installer="$(cd -- "$(dirname -- "$0")/.." && pwd)/script/install.sh"
 fixture=$(mktemp -d)
 trap 'rm -rf -- "$fixture"' EXIT
@@ -12,9 +13,14 @@ mkdir -p "$fixture/bin"
 cat > "$fixture/bin/curl" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
+release_base=https://github.com/rohan-prasen/lazel/releases
+if [[ ${@: -1} == "$release_base/latest" ]]; then
+    printf '%s/tag/%s' "$release_base" "$LAZEL_TEST_TAG"
+    exit 0
+fi
 url=${@: -3:1}
 destination=${@: -1}
-case "${url##*/}" in
+case "${url#"$release_base/download/$LAZEL_TEST_TAG/"}" in
     "${LAZEL_TEST_ARCHIVE##*/}") cp "$LAZEL_TEST_ARCHIVE" "$destination" ;;
     "${LAZEL_TEST_ARCHIVE##*/}.sha256")
         if [[ ${LAZEL_TEST_CORRUPT:-0} == 1 ]]; then
@@ -27,12 +33,14 @@ esac
 STUB
 chmod +x "$fixture/bin/curl"
 
-export LAZEL_TEST_ARCHIVE="$archive"
+export LAZEL_TEST_ARCHIVE="$archive" LAZEL_TEST_TAG="$candidate_tag" LAZEL_INSTALL_NONINTERACTIVE=1
 test_path="$fixture/bin:$PATH"
 output=$(env HOME="$test_home" PATH="$test_path" bash < "$installer")
 [[ "$output" == *'export PATH="$HOME/.local/bin:$PATH"'* ]]
 [[ "$output" == *'lazel --version'* ]]
-"$bin_dir/lazel" --version
+version=$("$bin_dir/lazel" --version)
+[[ "$version" == "lazel ${candidate_tag#v}" ]]
+printf '%s\n' "$version"
 cp "$bin_dir/lazel" "$fixture/installed"
 
 printf 'old executable\n' > "$bin_dir/lazel"

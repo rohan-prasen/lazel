@@ -1,4 +1,7 @@
-param([Parameter(Mandatory)][string]$ArchivePath)
+param(
+    [Parameter(Mandatory)][string]$ArchivePath,
+    [Parameter(Mandatory)][string]$CandidateTag
+)
 
 $ErrorActionPreference = 'Stop'
 $fixtureArchive = Get-Item -LiteralPath $ArchivePath
@@ -8,12 +11,25 @@ $installDir = Join-Path $fixture '.local\bin'
 $destination = Join-Path $installDir 'lazel.exe'
 $originalProfile = $env:USERPROFILE
 $originalPath = $env:Path
+$originalNonInteractive = $env:LAZEL_INSTALL_NONINTERACTIVE
 $corruptChecksum = $false
 
+function Invoke-RestMethod {
+    param([switch]$UseBasicParsing, [int]$TimeoutSec, [uri]$Uri)
+
+    if ($Uri.AbsoluteUri -cne 'https://api.github.com/repos/rohan-prasen/lazel/releases/latest') {
+        throw "Unexpected release lookup: $Uri"
+    }
+    [pscustomobject]@{ tag_name = $CandidateTag }
+}
+
 function Invoke-WebRequest {
-    param([switch]$UseBasicParsing, [uri]$Uri, [string]$OutFile)
+    param([switch]$UseBasicParsing, [int]$TimeoutSec, [uri]$Uri, [string]$OutFile)
 
     $name = [IO.Path]::GetFileName($Uri.AbsolutePath)
+    if ($Uri.AbsoluteUri -cne "https://github.com/rohan-prasen/lazel/releases/download/$CandidateTag/$name") {
+        throw "Unexpected installer asset URL: $Uri"
+    }
     if ($name -eq $fixtureArchive.Name) {
         Copy-Item -LiteralPath $fixtureArchive.FullName -Destination $OutFile
     } elseif ($name -eq "$($fixtureArchive.Name).sha256") {
@@ -29,13 +45,14 @@ function Invoke-WebRequest {
 
 try {
     $env:USERPROFILE = $fixture
+    $env:LAZEL_INSTALL_NONINTERACTIVE = '1'
     $scriptText = Get-Content -LiteralPath $installer -Raw
     $output = $scriptText | Invoke-Expression 6>&1 | Out-String
     if ($output -notmatch '\$env:Path\s*=' -or $output -notmatch 'lazel --version') {
         throw "Missing installer PATH or verification instructions. $output"
     }
     $version = & $destination --version
-    if ($LASTEXITCODE -ne 0 -or $version -notmatch '^lazel \d+\.\d+\.\d+$') {
+    if ($LASTEXITCODE -ne 0 -or $version -cne "lazel $($CandidateTag.Substring(1))") {
         throw "Unexpected installed binary version: $version"
     }
     $installedHash = (Get-FileHash -LiteralPath $destination).Hash
@@ -66,5 +83,6 @@ try {
 } finally {
     $env:USERPROFILE = $originalProfile
     $env:Path = $originalPath
+    $env:LAZEL_INSTALL_NONINTERACTIVE = $originalNonInteractive
     Remove-Item -LiteralPath $fixture -Recurse -Force -ErrorAction SilentlyContinue
 }
