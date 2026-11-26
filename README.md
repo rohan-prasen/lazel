@@ -91,10 +91,25 @@ depends_on = ["generator:build"]
 ```
 
 - `dir` is a path relative to the workspace root, such as `app` or `.`. It must resolve to an existing directory inside the workspace.
-- `command` is a nonblank shell command run from the project directory. Use `/bin/sh` syntax on macOS and Linux and `cmd.exe` syntax on Windows. Commands inherit your environment, standard streams, and privileges. Run tasks only from workspace configurations you trust.
+- `command` is a nonblank shell command run from the project directory. Use `/bin/sh` syntax on macOS and Linux and `cmd.exe` syntax on Windows. Recipes run with your privileges. Run tasks only from workspace configurations you trust.
 - `depends_on` is an optional list of `project:task` identifiers. Project and task names start with a lowercase ASCII letter and can also contain digits, hyphens, and underscores.
 
-Run a task with `lazel run <project>:<task>`. Lazel validates the whole workspace first, completes prerequisites sequentially in declaration order, and processes shared prerequisites once per invocation. On failure it stops and returns the shell's exit status. Lazel writes its progress and diagnostics to stderr.
+### Select tasks and run them in parallel
+
+Run a task with `lazel run <project>:<task>`, or use bare names to select matching tasks across projects. Mix qualified and bare names in one invocation. A quoted `--filter` matches project names with a case-sensitive glob, and each operand must match at least one target. Prerequisites in other projects still run.
+
+```sh
+lazel run build lint
+lazel run build lint --filter "app-*" --concurrency 2
+```
+
+Lazel validates the whole workspace first and processes each selected task and shared prerequisite once. The default is one job, with prerequisites visited in declaration order and standard streams inherited. With more jobs, successful recipes and verified cache restores release dependent tasks as slots become available. Uncached recipes inherit the caller's environment.
+
+Parallel recipe output is labeled with its `project:task` selector on stdout or stderr. Ordinary parallel recipes receive EOF on stdin. Set `interactive = true` on an uncached task to run it alone with the inherited streams. Lazel writes its progress and diagnostics to stderr.
+
+Declare project-relative output files or directories with `outputs`, including for uncached tasks. Lazel rejects overlapping declared roots when the selected tasks can run together. Add a dependency edge for recipes that write shared undeclared files, or use one job when the workspace has no safe parallel order.
+
+On failure, Lazel stops launching tasks, waits for active recipes to finish, and returns the first observed failure status. During a parallel run on macOS, Linux, or Windows, Ctrl-C stops launches, cleans up managed recipe processes, and returns status `130`. A cache restore in progress finishes or rolls back before Lazel exits.
 
 ### Cache a task locally
 
@@ -111,9 +126,9 @@ env = ["RUST_TOOLCHAIN_VERSION"]
 - `outputs` lists literal files or directories the task owns. A cache hit can replace an entire declared directory, including stale files inside it. Use a dedicated output directory for each task. Omit `outputs` for checks that produce no files.
 - `env` lists environment variables the command can read and Lazel hashes. Lazel also passes and hashes `PATH` and, on Windows, `SystemRoot` and `PATHEXT` when set. Supply toolchain versions through declared environment variables or input files. Keep tasks that depend on undeclared machine or network state uncached.
 
-Lazel stores successful results under `.lazel/cache/` in the workspace root. Add `.lazel/` to the workspace's Git ignore rules. Cache hits, misses, and bypasses appear on stderr. On a hit, Lazel restores the files and skips the recipe. Use `lazel run --no-cache <project>:<task>` to run all selected recipes with the inherited environment and bypass cached results.
+Lazel stores successful results under `.lazel/cache/` in the workspace root. Add `.lazel/` to the workspace's Git ignore rules. Cache hits, misses, and bypasses appear on stderr. On a hit, Lazel restores the files and skips the recipe. Add `--no-cache` to a run to execute all selected recipes with the inherited environment and bypass cached results.
 
-An interrupted restore can leave the previous outputs in `.lazel/restoring/backup/`. In `.lazel/restoring/manifest.toml`, `project` identifies the project directory and `roots` lists the output paths in backup index order. Recover those outputs before clearing the restore directory.
+A forced exit during restore can leave the previous outputs in `.lazel/restoring/backup/`. In `.lazel/restoring/manifest.toml`, `project` identifies the project directory and `roots` lists the output paths in backup index order. Recover those outputs before clearing the restore directory.
 
 On Windows, save this example as `lazel.toml` in a folder on a local drive and run `lazel run app:hello` from that folder.
 

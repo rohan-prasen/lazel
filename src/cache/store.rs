@@ -1,6 +1,8 @@
-use std::fs::{self, File, Metadata};
-use std::io::Read;
+use std::fs::{self, File, Metadata, TryLockError};
+use std::io::{self, Read};
 use std::path::{Path, PathBuf};
+use std::thread;
+use std::time::Duration;
 
 use anyhow::{Context, Result, bail, ensure};
 use serde::{Deserialize, Serialize};
@@ -46,7 +48,7 @@ struct FileEntry {
 }
 
 impl<'a> LocalCache<'a> {
-    pub fn lock(root: &'a Path) -> Result<Self> {
+    pub fn lock(root: &'a Path, interrupted: Option<fn() -> bool>) -> Result<Self> {
         let state = Path::new(STATE);
         if checked_metadata(root, state)?.is_none() {
             match fs::create_dir(root.join(state)) {
@@ -70,8 +72,30 @@ impl<'a> LocalCache<'a> {
             .read(true)
             .write(true)
             .open(root.join(lock_path))?;
-        lock.lock()
-            .context("could not lock local cache workspace")?;
+        if let Some(interrupted) = interrupted {
+            let mut waiting = false;
+            loop {
+                if interrupted() {
+                    return Err(io::Error::from(io::ErrorKind::Interrupted).into());
+                }
+                match lock.try_lock() {
+                    Ok(()) => break,
+                    Err(TryLockError::WouldBlock) => {
+                        if !waiting {
+                            eprintln!("lazel: waiting for the local cache workspace lock");
+                            waiting = true;
+                        }
+                        thread::sleep(Duration::from_millis(25));
+                    }
+                    Err(TryLockError::Error(error)) => {
+                        return Err(error).context("could not lock local cache workspace");
+                    }
+                }
+            }
+        } else {
+            lock.lock()
+                .context("could not lock local cache workspace")?;
+        }
         ensure!(
             checked_metadata(root, Path::new(RESTORING))?.is_none(),
             "interrupted cache restore; inspect '{}' for the manifest and previous outputs before running tasks",

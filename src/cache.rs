@@ -16,7 +16,6 @@ pub(crate) use store::LocalCache;
 
 pub(crate) struct CacheConfig {
     inputs: Vec<Pattern>,
-    pub outputs: Vec<PathBuf>,
     env: Vec<String>,
 }
 
@@ -24,12 +23,7 @@ pub(crate) type TaskEnvironment = BTreeMap<String, Option<OsString>>;
 pub(crate) type Fingerprint = [u8; 32];
 
 impl CacheConfig {
-    pub fn new(
-        enabled: bool,
-        inputs: Vec<String>,
-        outputs: Vec<PathBuf>,
-        env: Vec<String>,
-    ) -> Result<Option<Self>> {
+    pub fn new(enabled: bool, inputs: Vec<String>, env: Vec<String>) -> Result<Option<Self>> {
         ensure!(
             !enabled || !inputs.is_empty(),
             "cacheable task requires inputs"
@@ -48,20 +42,6 @@ impl CacheConfig {
                 Pattern::new(input).with_context(|| format!("invalid input glob '{input}'"))
             })
             .collect::<Result<Vec<_>>>()?;
-        for path in &outputs {
-            check_relative(path)
-                .with_context(|| format!("invalid output path '{}'", path.display()))?;
-            ensure!(
-                !path
-                    .as_os_str()
-                    .as_encoded_bytes()
-                    .iter()
-                    .any(|byte| matches!(byte, b'*' | b'?' | b'[' | b']')),
-                "expected a literal output path, got '{}'",
-                path.display()
-            );
-            ensure!(!reserved(path), "reserved output path '{}'", path.display());
-        }
         for name in &env {
             let mut chars = name.bytes();
             ensure!(
@@ -72,15 +52,7 @@ impl CacheConfig {
                 "invalid environment variable name '{name}'"
             );
         }
-        let outputs = outputs
-            .iter()
-            .map(|path| path.components().collect())
-            .collect();
-        Ok(enabled.then_some(Self {
-            inputs,
-            outputs,
-            env,
-        }))
+        Ok(enabled.then_some(Self { inputs, env }))
     }
 
     pub fn environment(&self) -> TaskEnvironment {
@@ -128,8 +100,8 @@ pub(crate) fn fingerprint(
     for pattern in &config.inputs {
         field(&mut hash, pattern.as_str().as_bytes());
     }
-    field(&mut hash, &config.outputs.len().to_le_bytes());
-    for output in &config.outputs {
+    field(&mut hash, &task.outputs.len().to_le_bytes());
+    for output in &task.outputs {
         field(&mut hash, output.as_os_str().as_encoded_bytes());
     }
     hash_environment(&mut hash, environment);
@@ -138,7 +110,7 @@ pub(crate) fn fingerprint(
         field(&mut hash, result);
     }
 
-    let inputs = input_files(root, &task.project, config)?;
+    let inputs = input_files(root, task, config)?;
     field(&mut hash, &inputs.len().to_le_bytes());
     for input in inputs {
         let relative = task.project.join(&input);
@@ -168,14 +140,14 @@ fn field(hash: &mut Sha256, value: &[u8]) {
     hash.update(value);
 }
 
-fn input_files(root: &Path, project: &Path, cache: &CacheConfig) -> Result<BTreeSet<PathBuf>> {
+fn input_files(root: &Path, task: &Task, cache: &CacheConfig) -> Result<BTreeSet<PathBuf>> {
     let mut inputs = BTreeSet::new();
     let options = MatchOptions {
         case_sensitive: !cfg!(windows),
         require_literal_separator: true,
         require_literal_leading_dot: false,
     };
-    let outputs: Vec<_> = cache.outputs.iter().map(|path| path_key(path)).collect();
+    let outputs: Vec<_> = task.outputs.iter().map(|path| path_key(path)).collect();
     for pattern in &cache.inputs {
         let parts = pattern.as_str().split('/');
         let prefix: PathBuf = parts
@@ -189,7 +161,7 @@ fn input_files(root: &Path, project: &Path, cache: &CacheConfig) -> Result<BTree
         };
         let mut pending = vec![prefix];
         while let Some(path) = pending.pop() {
-            let relative = project.join(&path);
+            let relative = task.project.join(&path);
             let key = path_key(&path);
             if reserved(&relative) || outputs.iter().any(|output| key.starts_with(output)) {
                 continue;
@@ -252,6 +224,27 @@ pub(crate) fn path_key(path: &Path) -> PathBuf {
     } else {
         path.to_owned()
     }
+}
+
+pub(crate) fn normalize_outputs(outputs: Vec<PathBuf>) -> Result<Vec<PathBuf>> {
+    outputs
+        .iter()
+        .map(|path| {
+            check_relative(path)
+                .with_context(|| format!("invalid output path '{}'", path.display()))?;
+            ensure!(
+                !path
+                    .as_os_str()
+                    .as_encoded_bytes()
+                    .iter()
+                    .any(|byte| matches!(byte, b'*' | b'?' | b'[' | b']')),
+                "expected a literal output path, got '{}'",
+                path.display()
+            );
+            ensure!(!reserved(path), "reserved output path '{}'", path.display());
+            Ok(path.components().collect())
+        })
+        .collect()
 }
 
 pub(crate) fn check_output(root: &Path, path: &Path) -> Result<Option<Metadata>> {

@@ -8,17 +8,14 @@ fn fingerprint_uses_declared_inputs_and_distinguishes_missing_environment() {
         dir: root.clone(),
         project: PathBuf::new(),
         command: "echo test".into(),
+        interactive: false,
         depends_on: vec![],
+        outputs: vec!["dist".into()],
         cache: None,
     };
-    let config = CacheConfig::new(
-        true,
-        vec!["**/*".into()],
-        vec!["dist".into()],
-        vec!["TOOLCHAIN".into()],
-    )
-    .unwrap()
-    .unwrap();
+    let config = CacheConfig::new(true, vec!["**/*".into()], vec!["TOOLCHAIN".into()])
+        .unwrap()
+        .unwrap();
     let mut environment = BTreeMap::from([("TOOLCHAIN".into(), None)]);
     let key = |env: &TaskEnvironment, deps: &[Fingerprint]| {
         fingerprint(&root, "app:build", &task, &config, env, deps).unwrap()

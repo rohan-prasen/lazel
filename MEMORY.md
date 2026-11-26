@@ -116,3 +116,59 @@ Work began at `d95e4b8`. The Rust 2024 package used Clap for argument parsing an
 - 2026-11-20 — Bumped the manifest and lockfile to 0.1.5 after merging opt-in local caching in pull request #2.
 - 2026-11-20 — Verified that the cache fingerprint distinguishes missing and empty environment values.
 - 2026-11-21 — Documented how to build and preserve a stack of small commits and choose a commit type in `AGENTS.md`.
+- 2026-11-26 — Scaffolded the OpenSpec change for bounded parallel execution and task selection.
+- 2026-11-26 — Wrote the OpenSpec proposal for multi-target selection, bounded scheduling, and parallel task lifecycle.
+- 2026-11-26 — Specified selector order, cache-aware scheduling, foreground streams, parallel cleanup, and declared output conflicts.
+- 2026-11-26 — Documented how the scheduler reuses graph traversal, shell launch behavior, and serialized cache transactions.
+- 2026-11-26 — Added the implementation checklist and native verification cases for the bounded parallel execution milestone.
+- 2026-11-26 — Clarified when interactive task validation lands and how output readers stop if a descendant escapes its process group.
+- 2026-11-26 — Added multi-target CLI selection, project glob filtering, and concurrency argument validation with selection fixtures.
+- 2026-11-26 — Sorted bare-task matches by project name so a project precedes names that extend it.
+- 2026-11-26 — Verified multi-target selection and the legacy serial runner fixtures, and completed OpenSpec task 1.1.
+- 2026-11-26 — Built a ready queue and reverse dependency edges from the validated task order, with a diamond graph regression test.
+- 2026-11-26 — Formatted the new workspace plan and scheduling fixture.
+- 2026-11-26 — Verified the diamond plan, repeated edges, and the locked local test suite, and completed OpenSpec task 1.2.
+- 2026-11-26 — Added interactive task validation and checked declared output ownership across selected parallel recipes.
+- 2026-11-26 — Formatted the parallel output validation and its fixtures.
+- 2026-11-26 — Verified declared output conflicts, serial compatibility, and the existing cache checks, and completed OpenSpec task 1.3.
+- 2026-11-26 — Extracted shared recipe preparation, shell construction, status handling, and cache result publication.
+- 2026-11-26 — Formatted the shared recipe and cache execution path.
+- 2026-11-26 — Added bounded ready-task scheduling and a synchronized diamond fixture that verifies overlap, slot limits, and dependent ordering.
+- 2026-11-26 — Formatted the bounded scheduler and the parallel fixture.
+- 2026-11-26 — Made the extra diamond fixture task become ready at the same time as both branches.
+- 2026-11-26 — Verified bounded overlap and dependent ordering with synchronized tasks, and completed OpenSpec task 2.2.
+- 2026-11-26 — Added parallel cache fixtures for independent restores, dependent fingerprints, bypass, and failed recipes.
+- 2026-11-26 — Formatted the parallel cache verification fixture.
+- 2026-11-26 — Verified the shared cache lock and parallel cache outcomes, and completed OpenSpec task 2.3.
+- 2026-11-26 — Added synchronized parallel failure-drain and fatal launch regression fixtures.
+- 2026-11-26 — Formatted the parallel failure fixtures.
+- 2026-11-26 — Verified first-failure status, active sibling drain, and fatal launch handling, and completed OpenSpec task 2.4.
+- 2026-11-26 — Added bounded byte-preserving labels on parallel output and disconnected ordinary parallel recipes from stdin.
+- 2026-11-26 — Formatted the parallel stream handling and its tests.
+- 2026-11-26 — Corrected the byte-stream fixture to parse framed records without converting them to text.
+- 2026-11-26 — Verified parallel stream labels, stdin EOF, record bounds, and raw byte handling, and completed OpenSpec task 3.1.
+- 2026-11-26 — Gave interactive recipes exclusive access to inherited streams and added a synchronized stdin fixture.
+- 2026-11-26 — Formatted foreground slot scheduling and its fixture.
+- 2026-11-26 — Added Unix process-group cleanup, terminal interrupt forwarding, and cancellation-aware parallel output draining.
+- 2026-11-26 — Formatted Unix process lifecycle handling and its scheduler integration.
+- 2026-11-26 — Added Unix fixtures for real terminal Ctrl-C, descendant cleanup, and interruption during failure drain.
+- 2026-11-26 — Formatted the native Unix lifecycle tests.
+- 2026-11-26 — Matched the terminal fixture's ioctl request to the platform ABI.
+- 2026-11-26 — Improved the pseudo-terminal fixture's diagnostics and drained terminal output during its barriers.
+- 2026-11-26 — Formatted the pseudo-terminal fixture diagnostics.
+- 2026-11-26 — Added managed Windows launches with Job Object containment at process creation and console interrupt handling.
+- 2026-11-26 — Formatted the Windows process adapter and shared shell description.
+- 2026-11-26 — Verified exclusive foreground scheduling, inherited stdin, and real terminal handoff, and completed OpenSpec task 3.2.
+- 2026-11-26 — Verified macOS Ctrl-C, terminal restoration, descendant cleanup, and interruption during failure drain, and completed OpenSpec task 3.3.
+- 2026-11-26 — Added Windows fixtures for isolated-console Ctrl-C, descendant cleanup, and serial and managed shell quoting.
+- 2026-11-26 — Formatted the Windows console fixtures.
+- 2026-11-26 — Made waiting for the workspace cache lock interruptible and added cancellation fixtures for a held lock, a running recipe, and an active restore.
+- 2026-11-26 — Formatted cache cancellation handling and Unix fixtures.
+- 2026-11-26 — Documented selection, scheduler behavior, streams, output conflicts, and cancellation in the README and changelog.
+- 2026-11-26 — Applied strict Clippy's byte-string suggestions in the Unix terminal relay.
+- 2026-11-26 — Verified cache lock cancellation, skipped publication for an interrupted recipe, and clean completion of an active restore, and completed OpenSpec task 3.5.
+- 2026-11-26 — Verified the new CLI and configuration documentation, and completed OpenSpec task 4.1.
+- 2026-11-26 — Created the candidate branch for native bounded parallel execution verification.
+- 2026-11-26 — Made Unix output draining preserve queued bytes even when output delivery is slow.
+- 2026-11-26 — Formatted the updated Unix output drain.
+- 2026-11-26 — Measured a four-task diamond over three trials per limit on Apple Silicon, with one- and two-job medians of 323.5 ms and 206.0 ms cold, 7.0 ms and 7.4 ms warm, and 7.1 ms and 6.6 ms restored, plus four verified hits on every warm or restore run, completing OpenSpec task 4.3.

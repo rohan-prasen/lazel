@@ -542,12 +542,14 @@ dependencies = [
  "clap",
  "flate2",
  "glob",
+ "libc",
  "serde",
  "sha2",
  "tar",
  "tempfile",
  "toml",
  "ureq",
+ "windows-sys 0.61.2",
  "zip",
 ]
 

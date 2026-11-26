@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Select multiple tasks with `lazel run build lint` and narrow the requested
+  targets with a project-name `--filter`. Cross-project prerequisites still run.
+- Use `--concurrency <n>` to opt into bounded parallel execution. The default
+  is one job. Parallel runs label recipe output, reserve inherited streams for
+  exclusive interactive tasks, and check declared outputs for conflicts.
+- Parallel failures stop new launches while active work finishes. Ctrl-C
+  cleans up managed recipe processes on macOS, Linux, and Windows.
+
 ## [0.1.5]
 
 - Tasks can opt into local caching with declared inputs, outputs, and

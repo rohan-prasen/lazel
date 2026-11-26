@@ -416,6 +416,101 @@ fn dependencies_restore_before_downstream_hashing_and_untracked_results_bypass()
     assert!(build().contains("cache bypass app:build"));
 }
 
+#[test]
+fn parallel_cache_restores_independent_outputs_before_fingerprinting_dependents() {
+    let root = fixture();
+    let dir = root.path();
+    let combine = recipe(
+        "cat left.txt right.txt > result.txt",
+        "type left.txt > result.txt && type right.txt >> result.txt",
+    );
+    let fail = recipe("exit 7", "exit /b 7");
+    let config = format!(
+        "
+[projects.app]
+dir = '.'
+[projects.app.tasks.left]
+command = 'echo left > left.txt'
+cache = true
+inputs = ['input.txt']
+outputs = ['left.txt']
+[projects.app.tasks.right]
+command = 'echo right > right.txt'
+cache = true
+inputs = ['input.txt']
+outputs = ['right.txt']
+[projects.app.tasks.build]
+command = '{combine}'
+cache = true
+inputs = ['left.txt', 'right.txt']
+outputs = ['result.txt']
+depends_on = ['app:left', 'app:right']
+[projects.app.tasks.fail]
+command = '{fail}'
+cache = true
+inputs = ['input.txt']
+"
+    );
+    let config_file = dir.join("lazel.toml");
+    fs::write(&config_file, &config).unwrap();
+    let build = |extra: &[&str]| {
+        successful(
+            run(dir)
+                .args(["app:build", "--concurrency=2"])
+                .args(extra)
+                .output()
+                .unwrap(),
+        )
+    };
+    let cold = build(&[]);
+    for name in ["left", "right", "build"] {
+        assert!(cold.contains(&format!("cache miss app:{name}")), "{cold}");
+    }
+    let entries = || {
+        let mut entries = fs::read_dir(dir.join(".lazel/cache"))
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .collect::<Vec<_>>();
+        entries.sort();
+        entries
+    };
+    let original_entries = entries();
+    for name in ["left.txt", "right.txt", "result.txt"] {
+        fs::remove_file(dir.join(name)).unwrap();
+    }
+    let restored = build(&[]);
+    let bypassed = build(&["--no-cache"]);
+    for name in ["left", "right", "build"] {
+        assert!(
+            restored.contains(&format!("cache hit app:{name}")),
+            "{restored}"
+        );
+        assert!(
+            bypassed.contains(&format!("cache bypass app:{name}")),
+            "{bypassed}"
+        );
+    }
+    let result = fs::read_to_string(dir.join("result.txt")).unwrap();
+    assert_eq!(
+        result.lines().map(str::trim).collect::<Vec<_>>(),
+        ["left", "right"]
+    );
+    let failure = run(dir)
+        .args(["app:fail", "--concurrency=2"])
+        .output()
+        .unwrap();
+    assert_eq!(failure.status.code(), Some(7), "{failure:?}");
+    assert_eq!(original_entries, entries());
+    fs::write(
+        &config_file,
+        config.replacen("cache = true", "cache = false", 1),
+    )
+    .unwrap();
+    let untracked = build(&[]);
+    assert!(untracked.contains("cache hit app:right"), "{untracked}");
+    assert!(untracked.contains("cache bypass app:build"), "{untracked}");
+}
+
 #[cfg(unix)]
 #[test]
 fn unsafe_output_ancestors_leave_external_files_untouched() {

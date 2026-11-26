@@ -164,8 +164,8 @@ fn reports_invalid_and_unknown_selectors() {
     let root = tempfile::tempdir().unwrap();
     configure(root.path(), &single_task("touch ran"));
     assert_error(
-        lazel(root.path(), "build").output().unwrap(),
-        "expected project:task",
+        lazel(root.path(), "app::build").output().unwrap(),
+        "expected task or project:task",
     );
     assert_error(
         lazel(root.path(), "app:missing").output().unwrap(),
